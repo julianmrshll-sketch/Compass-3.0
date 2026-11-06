@@ -169,11 +169,37 @@
   .q-step-nav{display:flex;gap:8px;margin-bottom:16px;}
   .q-step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all 0.2s;}
   .q-step-dot.active{background:var(--amber);width:20px;border-radius:4px;}
-  .q-back-btn{background:none;border:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;padding:0 0 12px;display:flex;align-items:center;gap:4px;}
-  .q-back-btn:active{color:var(--amber);}
+  .q-back-btn{display:inline-flex;align-items:center;gap:6px;background:var(--amber-bg);border:1px solid rgba(232,169,106,0.4);color:var(--amber);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;padding:9px 16px;border-radius:12px;margin:4px 0 14px;}
+  .q-back-btn:active{background:rgba(232,169,106,0.28);}
   .q-term-row{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid var(--border);}
   .q-term-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
   .q-term-remove{background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;}
+
+  /* ── SETTLEMENT ── */
+  #page-settlement [hidden]{display:none!important;}
+  button.quick-link-btn{cursor:pointer;}
+  .st-card{margin-bottom:14px;}
+  .st-title{margin-top:0!important;}
+  .st-two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .st-help{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;}
+  .st-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .st-metric{background:var(--surface);border-radius:14px;padding:12px 14px;min-width:0;}
+  .st-metric small{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .st-metric strong{display:block;font-family:'Syne',sans-serif;font-size:15px;color:var(--text);word-break:break-word;}
+  .st-metric.remaining strong{color:var(--amber);}
+  .st-metric.paid strong{color:var(--success);}
+  .st-actions{display:flex;gap:10px;margin-top:16px;}
+  .st-btn-ghost{background:var(--card)!important;color:var(--amber)!important;border:1px solid rgba(232,169,106,0.35)!important;box-shadow:none!important;}
+  .st-add-btn{display:flex;flex-direction:column;align-items:center;gap:2px;margin:16px 0 0!important;}
+  .st-add-btn span:last-child{font-family:'Syne',sans-serif;font-size:18px;}
+  .st-export{background:var(--amber-bg);border:1px solid rgba(232,169,106,0.3);color:var(--amber);border-radius:10px;padding:7px 12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+  .st-table-wrap{overflow:auto;max-height:340px;border-radius:12px;}
+  .st-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .st-table th{position:sticky;top:0;background:var(--surface);color:var(--muted);font-size:11px;text-align:left;padding:9px 10px;font-weight:600;}
+  .st-table td{padding:9px 10px;border-bottom:1px solid var(--border);}
+  .st-table .money{text-align:right;white-space:nowrap;}
+  .st-table tr.anniv td{background:var(--amber-bg);}
+  .st-foot{font-size:12px;color:var(--muted);margin-top:10px;}
 
   /* ── TASKS ── */
   .tasks-inner-tabs{display:flex;border-bottom:1px solid var(--border);margin:0 0 0 0;}
@@ -347,6 +373,7 @@
   /* WA SVG ICON */
   .wa-icon{width:18px;height:18px;fill:#25d366;}
 </style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -368,6 +395,7 @@
       <a class="quick-link-btn" href="https://www.openserve.co.za/coverage" target="_blank" rel="noopener">Openserve</a>
       <a class="quick-link-btn" href="https://www.axxess.co.za/fibre/provider/vuma-reach?gad_source=1&gad_campaignid=910864934&gbraid=0AAAAAD9r_X5vycbDmNnZHUheg1VqNS9hH&gclid=CjwKCAjwsfzSBhB5EiwAOGyqSTPyy82Y5CF9znfprKOPI51jrxdAo2sKIomRjsDDusjnqUa8d4QkGhoCdlcQAvD_BwE" target="_blank" rel="noopener">Coverage</a>
       <a class="quick-link-btn" href="https://www.porting.co.za/PublicWebsiteApp/#/number-inquiry" target="_blank" rel="noopener">CRDB</a>
+      <button class="quick-link-btn" onclick="openSettlementFromContacts()">Settlement</button>
     </div>
   </header>
 
@@ -660,6 +688,103 @@
   </div>
 </div>
 
+<!-- ══ SETTLEMENT PAGE ══ -->
+<div class="page" id="page-settlement">
+  <div style="padding:14px 14px 0"><button class="q-back-btn" onclick="stBack()">← Back</button></div>
+  <div class="dir-header" style="padding-top:0">
+    <div class="dir-title">Settlement</div>
+    <div class="dir-sub">Rental settlement with annual escalation</div>
+  </div>
+  <div style="padding:0 14px">
+
+    <div class="q-cost-card st-card">
+      <div class="q-section-label st-title">Term</div>
+      <div class="q-field-row">
+        <label class="q-label" for="st-termMode">How was the term provided?</label>
+        <select class="q-select" id="st-termMode">
+          <option value="years">Years and additional months</option>
+          <option value="totalMonths">Total term in months + months paid to date</option>
+        </select>
+      </div>
+      <div id="st-yearInputs" class="st-two">
+        <div><label class="q-label" for="st-years">Years</label><input class="q-input" id="st-years" type="number" min="0" max="50" step="1" placeholder="e.g. 5" /></div>
+        <div><label class="q-label" for="st-months">Additional Months</label><input class="q-input" id="st-months" type="number" min="0" max="11" step="1" placeholder="e.g. 0" /></div>
+      </div>
+      <div id="st-monthInputs" class="st-two" hidden>
+        <div><label class="q-label" for="st-totalMonths">Total Term (Months)</label><input class="q-input" id="st-totalMonths" type="number" min="1" max="600" step="1" placeholder="e.g. 60" /></div>
+        <div><label class="q-label" for="st-monthsPaid">Months Paid to Date</label><input class="q-input" id="st-monthsPaid" type="number" min="0" max="600" step="1" placeholder="e.g. 40" /></div>
+      </div>
+      <p class="st-help" id="st-termHelp"></p>
+    </div>
+
+    <div class="q-cost-card st-card">
+      <div class="q-section-label st-title">Rental</div>
+      <label class="q-label" for="st-rent">Monthly Rental Amount (ZAR)</label>
+      <input class="q-input" id="st-rent" type="number" min="0" step="0.01" placeholder="e.g. 1500.00" />
+      <p class="st-help">Enter the initial monthly rental amount before escalation.</p>
+    </div>
+
+    <div class="q-cost-card st-card">
+      <div class="q-section-label st-title">Escalation</div>
+      <label class="q-label" for="st-escalation">Annual Escalation Rate (%)</label>
+      <input class="q-input" id="st-escalation" type="number" min="0" max="1000" step="0.01" placeholder="e.g. 15" />
+      <p class="st-help">Enter the annual percentage increase in rental amount.</p>
+    </div>
+
+    <div class="q-cost-card st-card">
+      <div class="q-section-label st-title">Start Date &amp; Paid To Date</div>
+      <div class="q-field-row">
+        <label class="q-label" for="st-startDate">Settlement Start Date</label>
+        <input class="q-input" id="st-startDate" type="date" />
+        <p class="st-help" id="st-startDateHelp"></p>
+      </div>
+      <div class="q-field-row" style="margin-bottom:0">
+        <label class="q-label" for="st-asOf">Current date or last payment date</label>
+        <input class="q-input" id="st-asOf" type="date" />
+        <p class="st-help">Used to estimate payments made to date when entering a start date manually. In months mode, this date also determines the estimated start date.</p>
+      </div>
+    </div>
+
+    <div class="q-cost-card st-card">
+      <div class="q-section-label st-title">Settlement Summary</div>
+      <div class="st-metrics">
+        <div class="st-metric"><small>Total Settlement</small><strong id="st-total">R 0.00</strong></div>
+        <div class="st-metric remaining"><small>Remaining Amount</small><strong id="st-remaining">R 0.00</strong></div>
+        <div class="st-metric paid"><small>Paid to Date*</small><strong id="st-paid">R 0.00</strong></div>
+        <div class="st-metric"><small>Duration</small><strong id="st-duration">0 months</strong></div>
+      </div>
+      <div class="st-metric" style="margin-bottom:10px"><small>Escalation</small><strong id="st-escRange">R 0.00 → R 0.00</strong></div>
+      <div class="st-metrics" style="margin-bottom:0">
+        <div class="st-metric"><small>First Payment</small><strong id="st-first">R 0.00</strong></div>
+        <div class="st-metric"><small>Final Payment</small><strong id="st-last">R 0.00</strong></div>
+      </div>
+
+      <div id="st-actions-contacts" class="st-actions">
+        <button class="q-next-btn st-btn-ghost" style="margin:0;flex:1" onclick="stOpenPdfModal()">Download PDF</button>
+        <button class="q-next-btn" style="margin:0;flex:1" onclick="stGenerateQuote()">Generate Quote</button>
+      </div>
+      <div id="st-actions-quoter" style="display:none">
+        <button class="q-next-btn st-add-btn" onclick="stAddToQuote()"><span>Add to Quote</span><span id="st-add-amount">R 0.00</span></button>
+      </div>
+    </div>
+
+    <div class="q-cost-card st-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="q-section-label st-title" style="margin-bottom:0">Payment Schedule</div>
+        <button class="st-export" onclick="stExportCsv()">⇩ Export CSV</button>
+      </div>
+      <div class="st-table-wrap">
+        <table class="st-table">
+          <thead><tr><th>No.</th><th>Date</th><th class="money">Monthly Rental</th><th class="money">Cumulative</th></tr></thead>
+          <tbody id="st-schedule"></tbody>
+        </table>
+      </div>
+      <div class="st-foot" id="st-scheduleFoot">Showing 0 payments</div>
+      <p class="st-help">*Paid to Date is an estimate based on the entered months paid or selected date, not a record of actual payments received.</p>
+    </div>
+  </div>
+</div>
+
 <!-- ══ QUOTER PAGE ══ -->
 <div class="page" id="page-quoter">
   <div class="dir-header">
@@ -748,9 +873,11 @@
     <div class="q-cost-card">
       <div class="q-cost-row"><span>Stock Cost</span><span id="qd-stock">R 0.00</span></div>
       <div class="q-cost-row"><span>Install Cost</span><span id="qd-install">R 0.00</span></div>
+      <div class="q-cost-row" id="qd-settle-row" style="display:none"><span>Settlement <button class="q-term-remove" onclick="removeSettlement()" title="Remove settlement" style="font-size:16px;margin-left:4px">&times;</button></span><span id="qd-settle">R 0.00</span></div>
       <div class="q-cost-row"><span>Admin</span><span>R 5,000.00</span></div>
       <div class="q-cost-row q-cost-total"><span>Total (ex GP)</span><span id="qd-total">R 0.00</span></div>
     </div>
+    <button class="q-next-btn" id="btn-add-settle" onclick="openSettlementFromQuoter()" style="background:var(--card);color:var(--amber);border:1px solid rgba(232,169,106,0.35);box-shadow:none">Add Settlement</button>
     <button class="q-next-btn" onclick="showStep(5)">Continue →</button>
   </div>
 
@@ -912,6 +1039,20 @@
   </div>
 </div>
 
+<!-- SETTLEMENT PDF DETAILS MODAL -->
+<div class="modal-overlay" id="modalSettlePdf">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Settlement PDF</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5">These details appear at the top of the PDF. All three are required.</div>
+    <div class="form-group"><label class="form-label">Agent <span style="color:var(--danger)">*</span></label><input class="form-input" id="st-agent" placeholder="Your name" /></div>
+    <div class="form-group"><label class="form-label">Business Name <span style="color:var(--danger)">*</span></label><input class="form-input" id="st-bizname" placeholder="Client business name" /></div>
+    <div class="form-group"><label class="form-label">Current Provider <span style="color:var(--danger)">*</span></label><input class="form-input" id="st-provider" placeholder="Who the client rents from now" /></div>
+    <button class="btn-primary" onclick="stDownloadPdf()">Download PDF</button>
+    <button class="btn-cancel" onclick="closeModal('modalSettlePdf')">Cancel</button>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -993,7 +1134,8 @@ function showPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
-  document.getElementById('nav-'+name).classList.add('active');
+  var navBtn=document.getElementById('nav-'+(name==='settlement'?stOrigin:name));
+  if(navBtn) navBtn.classList.add('active');
   if(name==='directory') renderDirectory();
   if(name==='tasks') renderTasks();
   if(name==='quoter') { showStep(1); }
@@ -1350,1137 +1492,4 @@ function renderDirectory(){
           ${c.area?'<div class="contact-field"><span class="field-icon">📍</span><div class="field-text"><div class="field-label">AREA / SUBURB</div><div class="field-value">'+esc(c.area)+'</div></div></div>':''}
           ${c.address?'<div class="contact-field"><span class="field-icon">🗺️</span><div class="field-text"><div class="field-label">ADDRESS</div><div class="field-value">'+esc(c.address)+'</div></div></div>':''}
           ${landSection}${cellSection}${emailSection}
-          ${c.colleague?'<div class="contact-field"><span class="field-icon">🤝</span><div class="field-text"><div class="field-label">COLLEAGUE</div><div class="field-value">'+esc(c.colleague)+'</div></div></div>':''}
-          ${c.notes?'<div class="contact-notes-block"><div class="contact-notes-label">NOTES</div><div class="contact-notes-text">'+esc(c.notes)+'</div></div>':''}
-          <div class="ac-divider">App Connect</div>
-          <div class="ac-row">
-            ${bestNum?`<button class="ac-btn ac-call" onclick="showCallChooser('${esc(bestNum)}','${esc(c.cell||c.land)}',event)"><span class="ac-btn-icon">📞</span>Call</button>`:''}
-            ${c.cell?`<button class="ac-btn ac-wa" onclick="openWhatsApp('${esc(cleanNum(c.cell))}',event)"><span class="ac-btn-icon">${WA_SVG}</span>WhatsApp</button>`:''}
-            ${c.email?`<button class="ac-btn ac-email" onclick="openEmail('${esc(c.email)}',event)"><span class="ac-btn-icon">${EMAIL_SVG}</span>Email</button>`:''}
-            <button class="ac-btn ac-remind" onclick="openReminder(${c.id},event)"><span class="ac-btn-icon">🔔</span>Remind</button>
-          </div>
-          <div class="contact-actions" style="margin-top:10px">
-            <button class="contact-action-btn btn-edit" onclick="openEdit(${c.id},event)">✏️ Edit</button>
-            <button class="contact-action-btn btn-del" onclick="deleteContact(${c.id},event)">🗑 Delete</button>
-          </div>
-        </div>
-      </div>`;
-    });
-    html+=`</div>`;
-  });
-  el.innerHTML=html;
-}
-
-function setDirAlpha(l){dirAlpha=l;renderDirectory();}
-function toggleDirCard(id){
-  const body=document.getElementById('db-'+id),card=document.getElementById('dc-'+id);
-  if(!body||!card)return;
-  const isOpen=body.classList.contains('open');
-  document.querySelectorAll('.dir-body.open').forEach(b=>{b.classList.remove('open');b.closest('.dir-card')?.classList.remove('expanded');});
-  if(!isOpen){body.classList.add('open');card.classList.add('expanded');}
-}
-
-// ── APP CONNECT ──
-function showCallChooser(num,display,e){
-  e&&e.stopPropagation();if(!num)return;
-  document.getElementById('chooserTitle').textContent='Call via…';
-  document.getElementById('chooserNum').textContent=display;
-  document.getElementById('chooserOptions').innerHTML=`
-    <a class="chooser-option" href="tel:${num}" onclick="closeChooser()">
-      <span class="chooser-option-icon">📱</span>
-      <div><div class="chooser-option-label">Phone Dialer</div><div class="chooser-option-sub">Opens your default phone app</div></div>
-    </a>
-    <a class="chooser-option" href="linkus://${num}" onclick="closeChooser()">
-      <span class="chooser-option-icon">🔵</span>
-      <div><div class="chooser-option-label">Linkus</div><div class="chooser-option-sub">Opens Linkus softphone app</div></div>
-    </a>`;
-  document.getElementById('chooserOverlay').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function openWhatsApp(num,e){
-  e&&e.stopPropagation();if(!num)return;
-  window.open('https://wa.me/'+num.replace(/\D/g,''),'_blank');
-}
-function openEmail(address,e){
-  e&&e.stopPropagation();if(!address)return;
-  window.location.href=`mailto:${address}`;
-}
-function closeChooser(){
-  document.getElementById('chooserOverlay').classList.remove('open');
-  document.body.style.overflow='';
-}
-// moved to DOMContentLoaded below
-
-// ── REMINDERS ──
-function openReminder(id,e){
-  e&&e.stopPropagation();
-  reminderContactId=id;
-  const c=D.contacts.find(c=>c.id===id);
-  document.getElementById('reminderContactName').textContent=c?`For: ${c.name}`:'';
-  document.getElementById('reminderNote').value='';
-  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
-  document.getElementById('reminderDate').value=dateKey(tomorrow);
-  document.getElementById('reminderTime').value='09:00';
-  renderReminderList(id);openModal('modalReminder');
-}
-function saveReminder(){
-  const note=document.getElementById('reminderNote').value.trim();
-  const date=document.getElementById('reminderDate').value;
-  const time=document.getElementById('reminderTime').value;
-  if(!date||!time){showToast('Set a date and time');return;}
-  if(!D.reminders)D.reminders=[];
-  const r={id:Date.now(),contactId:reminderContactId,note:note||'Follow up',datetime:`${date}T${time}`,fired:false};
-  D.reminders.push(r);save();scheduleReminder(r);renderReminderList(reminderContactId);
-  showToast('Reminder set 🔔');document.getElementById('reminderNote').value='';
-}
-function renderReminderList(contactId){
-  const el=document.getElementById('reminderList');
-  const reminders=(D.reminders||[]).filter(r=>r.contactId===contactId&&!r.fired);
-  if(!reminders.length){el.innerHTML='';return;}
-  el.innerHTML='<div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;margin-top:16px">Upcoming Reminders</div>'+
-    reminders.map(r=>{
-      const dt=new Date(r.datetime);
-      const fmt=dt.toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'})+' at '+dt.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
-      return `<div class="reminder-item"><div><div class="reminder-item-text">${esc(r.note)}</div><div class="reminder-item-time">${fmt}</div></div><button class="reminder-del" onclick="deleteReminder(${r.id})">×</button></div>`;
-    }).join('');
-}
-function deleteReminder(id){D.reminders=(D.reminders||[]).filter(r=>r.id!==id);save();renderReminderList(reminderContactId);showToast('Reminder removed');}
-function scheduleReminder(r){
-  const ms=new Date(r.datetime).getTime()-Date.now();if(ms<=0)return;
-  if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();
-  setTimeout(()=>{
-    const c=D.contacts.find(c=>c.id===r.contactId),name=c?c.name:'Contact';
-    if('Notification'in window&&Notification.permission==='granted'){new Notification('Compass Reminder 🔔',{body:`${r.note} — ${name}`});}
-    else showToast(`Reminder: ${r.note} — ${name}`);
-    r.fired=true;save();
-  },ms);
-}
-function initReminders(){if(!D.reminders)return;D.reminders.filter(r=>!r.fired).forEach(scheduleReminder);}
-
-// ── CARD SCANNER ──
-const SCAN_FIELDS = [
-  {key:'name',    label:'Name'},
-  {key:'biz',     label:'Business'},
-  {key:'area',    label:'Area'},
-  {key:'address', label:'Address'},
-  {key:'land',    label:'Landline'},
-  {key:'cell',    label:'Cell'},
-  {key:'email',   label:'Email'},
-];
-
-let scanItems = [];      // [{id, value, assignedField}]
-let scanAssignments = {}; // {fieldKey: itemId}
-
-function openScanner(){
-  scanItems = [];
-  scanAssignments = {};
-  showScanStep(1);
-  // push scanner modal on top without closing Add modal
-  document.getElementById('modalScanner').classList.add('open');
-}
-
-function rescan(){
-  scanItems = [];
-  scanAssignments = {};
-  showScanStep(1);
-}
-
-function showScanStep(n){
-  [1,2,3].forEach(i => document.getElementById('scanStep'+i).style.display = i===n ? '' : 'none');
-}
-
-async function handleScanImage(e){
-  const file = e.target.files[0];
-  if(!file){ return; }
-  e.target.value = '';
-
-  // Reopen scanner at processing step
-  showScanStep(2);
-  document.getElementById('modalScanner').classList.add('open');
-  document.body.style.overflow = 'hidden';
-
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    const dataUrl = ev.target.result;
-    document.getElementById('scanPreview').src = dataUrl;
-    document.getElementById('scanPreview2').src = dataUrl;
-    const base64 = dataUrl.split(',')[1];
-    const mime   = file.type || 'image/jpeg';
-
-    try {
-      const extracted = await callClaudeVision(base64, mime);
-      scanItems = extracted.map((val, i) => ({ id: i, value: val, assignedField: null }));
-      renderScanItems();
-      showScanStep(3);
-    } catch(err) {
-      showScanStep(1);
-      showToast('Could not read card — try a clearer photo');
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-async function callClaudeVision(base64, mime){
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1000,
-      messages: [{
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: { type: 'base64', media_type: mime, data: base64 }
-          },
-          {
-            type: 'text',
-            text: `Extract all contact information from this business card or note. Return ONLY a JSON array of strings, each string being one piece of information (name, company, phone numbers, email addresses, physical address, suburb/area). No labels, no explanation, no markdown. Just the raw JSON array. Example: ["John Smith","Acme Corp","021 555 1234","083 123 4567","john@acme.co.za","12 Main Road","Claremont"]. If you cannot read the image clearly, return an empty array [].`
-          }
-        ]
-      }]
-    })
-  });
-  const data = await res.json();
-  const text = data.content?.find(b => b.type === 'text')?.text || '[]';
-  const clean = text.replace(/```json|```/g,'').trim();
-  return JSON.parse(clean);
-}
-
-function renderScanItems(){
-  const el = document.getElementById('scanItems');
-  if(!scanItems.length){
-    el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Nothing could be extracted. Try a clearer photo.</div>';
-    return;
-  }
-  el.innerHTML = scanItems.map(item => {
-    const assigned = item.assignedField ? SCAN_FIELDS.find(f=>f.key===item.assignedField) : null;
-    return `<div class="scan-item" id="si-${item.id}">
-      <div class="scan-item-top">
-        <div class="scan-item-value">${esc(item.value)}</div>
-        <div class="scan-item-actions">
-          ${assigned ? `<span class="scan-field-tag">${assigned.label}</span>` : ''}
-          <button class="scan-edit-btn" onclick="toggleScanEdit(${item.id})" title="Edit">✏️</button>
-          <button class="scan-dismiss-btn" onclick="dismissScanItem(${item.id})" title="Remove">×</button>
-        </div>
-      </div>
-      <textarea class="scan-item-edit" id="se-${item.id}" rows="2" onblur="saveScanEdit(${item.id})">${esc(item.value)}</textarea>
-      <div class="scan-assign-row">
-        ${SCAN_FIELDS.map(f => {
-          const isAssignedHere = item.assignedField === f.key;
-          const takenByOther   = scanAssignments[f.key] !== undefined && scanAssignments[f.key] !== item.id;
-          return `<button class="scan-assign-chip${isAssignedHere?' active':''}" onclick="assignScanItem(${item.id},'${f.key}')">${f.label}${takenByOther?' ⇄':''}</button>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleScanEdit(id){
-  const ta = document.getElementById('se-'+id);
-  ta.classList.toggle('open');
-  if(ta.classList.contains('open')) ta.focus();
-}
-
-function saveScanEdit(id){
-  const ta = document.getElementById('se-'+id);
-  const item = scanItems.find(i=>i.id===id);
-  if(item && ta.value.trim()) item.value = ta.value.trim();
-  ta.classList.remove('open');
-  renderScanItems();
-}
-
-function dismissScanItem(id){
-  const item = scanItems.find(i=>i.id===id);
-  if(item && item.assignedField) delete scanAssignments[item.assignedField];
-  scanItems = scanItems.filter(i=>i.id!==id);
-  renderScanItems();
-}
-
-function assignScanItem(id, fieldKey){
-  const item = scanItems.find(i=>i.id===id);
-  if(!item) return;
-
-  // if this item is already assigned to this field — unassign
-  if(item.assignedField === fieldKey){
-    delete scanAssignments[fieldKey];
-    item.assignedField = null;
-    renderScanItems();
-    return;
-  }
-
-  // if another item holds this field — swap
-  const currentHolder = scanItems.find(i=>i.id !== id && i.assignedField === fieldKey);
-  if(currentHolder){
-    // swap: give current holder this item's old field
-    const oldField = item.assignedField;
-    currentHolder.assignedField = oldField;
-    if(oldField) scanAssignments[oldField] = currentHolder.id;
-    else if(oldField) delete scanAssignments[oldField];
-  }
-
-  // unlink item's old field
-  if(item.assignedField) delete scanAssignments[item.assignedField];
-
-  // assign
-  item.assignedField = fieldKey;
-  scanAssignments[fieldKey] = id;
-  renderScanItems();
-}
-
-function commitScan(){
-  const result = {};
-  scanItems.forEach(item => {
-    if(item.assignedField) result[item.assignedField] = item.value;
-  });
-
-  // close only the scanner overlay
-  document.getElementById('modalScanner').classList.remove('open');
-
-  // populate add form fields from scan
-  const fieldMap = {name:'fName',biz:'fBiz',area:'fArea',address:'fAddress',land:'fLand',cell:'fCell',email:'fEmail'};
-  Object.entries(result).forEach(([key,val])=>{
-    const inputId = fieldMap[key];
-    if(inputId) document.getElementById(inputId).value = val;
-  });
-
-  // make sure add modal is open
-  document.getElementById('modalAdd').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  showToast('Card scanned — review and save ✓');
-}
-
-// ══ QUOTER ══
-
-// ── PRICING DATA (from spreadsheet) ──
-const COMMS_PRODUCTS = [
-  { id:'t46u', name:'Yealink T46U', sub:'Advanced Switchboard', price:3648.38, img:'https://www.yealink.com/upload/product/202003/20200304112218_t46u-1.jpg' },
-  { id:'t43u', name:'Yealink T43U', sub:'Basic Switchboard', price:2420.75, img:'https://www.yealink.com/upload/product/202003/20200304112218_t43u.jpg' },
-  { id:'t31p', name:'Yealink T31P', sub:'Desktop Phone', price:1155.75, img:'https://www.yealink.com/upload/product/202003/20200304112218_t31p.jpg' },
-  { id:'w73p', name:'Yealink W73P', sub:'Cordless Handset + Base', price:2601.88, img:'https://www.yealink.com/upload/product/202003/20200304112218_w73p.jpg' },
-  { id:'w73b', name:'Yealink W73B', sub:'Single Cordless Base', price:1443.25, img:'https://www.yealink.com/upload/product/202003/20200304112218_w73b.jpg' },
-  { id:'w80b', name:'Yealink W80B', sub:'Multicell DECT Base', price:5058.56, img:'https://www.yealink.com/upload/product/202003/20200304112218_w80b.jpg' },
-  { id:'s412', name:'Yeastar S412', sub:'PBX — Up to 8 Users', price:4743.75, img:'https://www.yeastar.com/wp-content/uploads/2021/01/s412.png' },
-  { id:'s20',  name:'Yeastar S20',  sub:'PBX — Up to 20 Users', price:6323.56, img:'https://www.yeastar.com/wp-content/uploads/2021/01/s20.png' },
-  { id:'expmod', name:'Yealink Expansion Module', sub:'Switchboard Add-on', price:2752.45, img:'https://www.yealink.com/upload/product/202003/20200304112218_exp43.jpg' },
-  { id:'psu_mono', name:'PSU Mono', sub:'Power Supply — Mono', price:231.44, img:null, emoji:'🔌' },
-  { id:'psu_colour', name:'PSU Colour', sub:'Power Supply — Colour', price:283.10, img:null, emoji:'🔌' },
-  { id:'lte_router', name:'LTE Router', sub:'Cellular Router', price:2154.81, img:null, emoji:'📶' },
-  { id:'failover', name:'Failover Router', sub:'Backup Router', price:2298.56, img:null, emoji:'🔁' },
-];
-
-const PRINTER_PRODUCTS = [
-  { id:'printer_a4_mono', name:'A4 Mono Copier', sub:'Monochrome — A4', price:8500, img:null, emoji:'🖨️' },
-  { id:'printer_a4_colour', name:'A4 Colour Copier', sub:'Colour — A4', price:14500, img:null, emoji:'🖨️' },
-  { id:'printer_a3_mono', name:'A3 Mono Copier', sub:'Monochrome — A3', price:18000, img:null, emoji:'🖨️' },
-  { id:'printer_a3_colour', name:'A3 Colour Copier', sub:'Colour — A3', price:28000, img:null, emoji:'🖨️' },
-];
-
-const SECURITY_PRODUCTS = [
-  { id:'cam_2mp', name:'2MP IP Camera', sub:'1080p Indoor/Outdoor', price:1800, img:null, emoji:'📷' },
-  { id:'cam_4mp', name:'4MP IP Camera', sub:'2K Indoor/Outdoor', price:2400, img:null, emoji:'📷' },
-  { id:'cam_8mp', name:'8MP IP Camera', sub:'4K Outdoor Dome', price:3200, img:null, emoji:'📷' },
-  { id:'cam_ptz', name:'PTZ Camera', sub:'Pan/Tilt/Zoom', price:5800, img:null, emoji:'🎥' },
-  { id:'nvr_4ch', name:'4 Channel NVR', sub:'Up to 4 cameras', price:2800, img:null, emoji:'💾' },
-  { id:'nvr_8ch', name:'8 Channel NVR', sub:'Up to 8 cameras', price:3800, img:null, emoji:'💾' },
-  { id:'nvr_16ch', name:'16 Channel NVR', sub:'Up to 16 cameras', price:5500, img:null, emoji:'💾' },
-  { id:'nvr_32ch', name:'32 Channel NVR', sub:'Up to 32 cameras', price:8500, img:null, emoji:'💾' },
-];
-
-// POE auto-selection rules
-const POE_RULES = [
-  { max:3,  id:'reyee', name:'Reyee 5 Port POE', price:2371.88 },
-  { max:8,  id:'poe8',  name:'8 Port POE Switch', price:970.31 },
-  { max:10, id:'poe10', name:'10 Port POE Switch', price:1257.81 },
-  { max:16, id:'poe16', name:'16 Port POE Switch', price:2659.38 },
-  { max:24, id:'poe24', name:'24 Port POE Switch', price:3500 },
-  { max:48, id:'poe48', name:'48 Port POE Switch', price:5800 },
-];
-
-// NVR auto-selection rules for cameras
-const NVR_RULES = [
-  { max:4,  name:'4 Channel NVR', price:2800 },
-  { max:8,  name:'8 Channel NVR', price:3800 },
-  { max:16, name:'16 Channel NVR', price:5500 },
-  { max:32, name:'32 Channel NVR', price:8500 },
-];
-
-// Rate tables
-const RATES = {
-  nonCpa: {
-    36: {
-      esc: [0, 0.05, 0.075, 0.1, 0.12, 0.15],
-      bands: [
-        [0.03861, 0.03752, 0.03693, 0.03645],
-        [0.03718, 0.03532, 0.03498, 0.03441],
-        [0.03603, 0.03501, 0.03443, 0.03398],
-        [0.03553, 0.03451, 0.03393, 0.03348],
-        [0.03462, 0.03361, 0.03305, 0.03261],
-        [0.03412, 0.03311, 0.03255, 0.03211],
-      ]
-    },
-    48: {
-      esc: [0, 0.05, 0.075, 0.1, 0.12, 0.15],
-      bands: [
-        [0.03207, 0.03093, 0.03031, 0.02981],
-        [0.03034, 0.02839, 0.02803, 0.02744],
-        [0.02896, 0.02788, 0.02729, 0.02682],
-        [0.02846, 0.02738, 0.02676, 0.02632],
-        [0.02732, 0.02627, 0.02571, 0.02543],
-        [0.02682, 0.02577, 0.02521, 0.02475],
-      ]
-    },
-    60: {
-      esc: [0, 0.05, 0.075, 0.1, 0.12, 0.15],
-      bands: [
-        [0.02829, 0.02708, 0.02642, 0.02591],
-        [0.02632, 0.02428, 0.02391, 0.0233],
-        [0.02477, 0.02364, 0.02303, 0.02255],
-        [0.02427, 0.02314, 0.02253, 0.02205],
-        [0.02296, 0.02188, 0.02131, 0.02083],
-        [0.02246, 0.02138, 0.02081, 0.02033],
-      ]
-    }
-  },
-  cpa: {
-    36: {
-      esc: [0, 0.05, 0.075, 0.1, 0.12, 0.15],
-      bands: [[0.04192,0.03982],[0.03974,0.03772],[0.03924,0.03722],[0.03874,0.03672],[0.02778,0.03578],[0.02728,0.03528]]
-    },
-    48: {
-      esc: [0, 0.05, 0.1, 0.15],
-      bands: [[0.03563,0.03338],[0.03235,0.03019],[0.03185,0.02969],[0.03012,0.02802]]
-    },
-    60: {
-      esc: [0, 0.05, 0.1, 0.15],
-      bands: [[0.03206,0.02967],[0.02832,0.02606],[0.02782,0.02556],[0.02589,0.02372]]
-    }
-  }
-};
-
-const ADMIN_FEE = 5000;
-const INSTALL_PER_UNIT = 450;
-
-// ── QUOTER STATE ──
-let qCategory = null;
-let qQuantities = {};
-let qConnectivity = '';
-let qConnectivityPrice = 0;
-let qInternetYes = false;
-let qInternetPrice = 0;
-let qGP = 0;
-let qCPA = 'non';
-let qTerm = '';
-let qEsc = '';
-
-function resetQuoter(){
-  qCategory=null; qQuantities={}; qConnectivity=''; qConnectivityPrice=0;
-  qInternetYes=false; qInternetPrice=0; qGP=0; qCPA='non'; qTermRows=[];
-  qClientData=null;
-  document.querySelectorAll('.q-cat-btn').forEach(function(b){b.classList.remove('active');});
-  document.getElementById('q-term-rows').innerHTML='';
-  showStep(1);
-}
-
-function showStep(n){
-  [1,2,3,4,5,6,7].forEach(function(i){
-    var el=document.getElementById('q-step'+i);
-    if(el) el.style.display=i===n?'':'none';
-  });
-  if(n===4||n===5) calcQuote();
-  if(n===5){
-    if(document.getElementById('q-term-rows').children.length===0) addTermRow();
-  }
-  if(n===7) updateFinalSummary();
-  // scroll to top of quoter
-  var qp=document.getElementById('page-quoter');
-  if(qp) qp.scrollTop=0;
-  window.scrollTo(0,0);
-}
-
-function selectCategory(cat, btn){
-  qCategory=cat; qQuantities={};
-  document.querySelectorAll('.q-cat-btn').forEach(function(b){b.classList.remove('active');});
-  if(btn) btn.classList.add('active');
-  var products=cat==='comms'?COMMS_PRODUCTS:cat==='printers'?PRINTER_PRODUCTS:SECURITY_PRODUCTS;
-  document.getElementById('q-hw-label').textContent=cat==='comms'?'Select Phones & Network Equipment':cat==='printers'?'Select Printers':'Select Security Equipment';
-  renderHardwareGrid(products);
-  showStep(2);
-}
-
-function renderHardwareGrid(products){
-  var el=document.getElementById('q-hardware-grid');
-  var html='';
-  products.forEach(function(p){
-    html+='<div class="q-hw-card">';
-    if(p.img) html+='<img class="q-hw-img" src="'+p.img+'" alt="'+esc(p.name)+'" onload="this.style.display=\'block\'" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'">';
-    html+='<div class="q-hw-img-placeholder" style="'+(p.img?'display:none':'')+'">'+(p.emoji||'📦')+'</div>';
-    html+='<div class="q-hw-info"><div class="q-hw-name">'+esc(p.name)+'</div><div style="font-size:11px;color:var(--muted)">'+esc(p.sub)+'</div><div class="q-hw-price">R '+p.price.toLocaleString('en-ZA',{minimumFractionDigits:2})+'</div></div>';
-    html+='<div class="q-hw-qty">';
-    html+='<button class="q-qty-btn" data-id="'+p.id+'" onclick="changeQty(this.dataset.id,-1)">−</button>';
-    html+='<input class="q-qty-input" id="qty-'+p.id+'" type="number" min="0" value="'+(qQuantities[p.id]||0)+'" data-id="'+p.id+'" onchange="setQty(this.dataset.id,this.value)" />';
-    html+='<button class="q-qty-btn" data-id="'+p.id+'" onclick="changeQty(this.dataset.id,1)">+</button>';
-    html+='</div></div>';
-  });
-  el.innerHTML=html;
-  updateAutoItems();
-}
-
-function changeQty(id,delta){
-  qQuantities[id]=Math.max(0,(qQuantities[id]||0)+delta);
-  var inp=document.getElementById('qty-'+id);
-  if(inp) inp.value=qQuantities[id];
-  updateAutoItems();
-}
-
-function setQty(id,val){
-  qQuantities[id]=Math.max(0,parseInt(val)||0);
-  updateAutoItems();
-}
-
-function updateAutoItems(){
-  var el=document.getElementById('q-auto-items');
-  var html='';
-  if(qCategory==='comms'){
-    var phoneCount=(qQuantities['t46u']||0)+(qQuantities['t43u']||0)+(qQuantities['t31p']||0)+(qQuantities['w73p']||0)+(qQuantities['w73b']||0)+(qQuantities['w80b']||0);
-    if(phoneCount>0){
-      var rule=POE_RULES.find(function(r){return phoneCount<=r.max;})||POE_RULES[POE_RULES.length-1];
-      html+='<div class="q-auto-item"><span>🔄 Auto: '+rule.name+'</span><span>R '+rule.price.toLocaleString('en-ZA',{minimumFractionDigits:2})+'</span></div>';
-    }
-  }
-  if(qCategory==='security'){
-    var camCount=(qQuantities['cam_2mp']||0)+(qQuantities['cam_4mp']||0)+(qQuantities['cam_8mp']||0)+(qQuantities['cam_ptz']||0);
-    if(camCount>0){
-      var rule=NVR_RULES.find(function(r){return camCount<=r.max;})||NVR_RULES[NVR_RULES.length-1];
-      html+='<div class="q-auto-item"><span>🔄 Auto: '+rule.name+'</span><span>R '+rule.price.toLocaleString('en-ZA',{minimumFractionDigits:2})+'</span></div>';
-    }
-  }
-  el.innerHTML=html;
-}
-
-function setToggle(type,val){
-  if(type==='internet'){
-    qInternetYes=val==='yes';
-    document.getElementById('qt-int-yes').classList.toggle('active',val==='yes');
-    document.getElementById('qt-int-no').classList.toggle('active',val==='no');
-    document.getElementById('q-internet-detail').style.display=qInternetYes?'':'none';
-  }
-  if(type==='cpa'){
-    qCPA=val;
-    document.getElementById('qt-cpa-non').classList.toggle('active',val==='non');
-    document.getElementById('qt-cpa-yes').classList.toggle('active',val==='cpa');
-    recalcAllTermRows();
-  }
-  calcQuote();
-}
-
-// ── TERM ROWS ──
-var qTermRowCount=0;
-function addTermRow(){
-  var idx=qTermRowCount++;
-  var el=document.getElementById('q-term-rows');
-  var div=document.createElement('div');
-  div.className='q-term-row';
-  div.id='q-term-row-'+idx;
-  div.innerHTML='<div class="q-term-row-header"><span style="font-size:13px;font-weight:600;color:var(--soft)">Option '+(el.children.length+1)+'</span>'+(el.children.length>0?'<button class="q-term-remove" onclick="removeTermRow('+idx+')">×</button>':'')+'</div>'
-    +'<div style="display:flex;gap:8px;margin-bottom:10px">'
-    +'<select class="q-select" id="q-term-'+idx+'" onchange="updateEscRow('+idx+');calcQuote()" style="flex:1"><option value="">— Term —</option><option value="36">36 Months</option><option value="48">48 Months</option><option value="60">60 Months</option></select>'
-    +'<select class="q-select" id="q-esc-'+idx+'" onchange="calcQuote()" style="flex:1"><option value="">— Escalation —</option></select>'
-    +'</div>'
-    +'<div class="q-cost-card" id="q-result-'+idx+'" style="display:none;margin-bottom:0">'
-    +'<div class="q-cost-row"><span>Factor</span><span id="qd-factor-'+idx+'">—</span></div>'
-    +'<div class="q-cost-row q-cost-highlight"><span>Monthly Rental</span><span id="qd-rental-'+idx+'">—</span></div>'
-    +'<div class="q-cost-row"><span>+ Service Fee</span><span>R 99.00</span></div>'
-    +'<div class="q-cost-row q-cost-total"><span>Total Monthly</span><span id="qd-total-row-'+idx+'">—</span></div>'
-    +'</div>';
-  el.appendChild(div);
-}
-
-function removeTermRow(idx){
-  var el=document.getElementById('q-term-row-'+idx);
-  if(el) el.remove();
-}
-
-function updateEscRow(idx){
-  var term=parseInt(document.getElementById('q-term-'+idx).value);
-  var escSel=document.getElementById('q-esc-'+idx);
-  if(!term){escSel.innerHTML='<option value="">— Escalation —</option>';return;}
-  var table=qCPA==='cpa'?RATES.cpa[term]:RATES.nonCpa[term];
-  if(!table)return;
-  escSel.innerHTML='<option value="">— Select —</option>'+table.esc.map(function(e){return '<option value="'+e+'">'+(e*100)+'%</option>';}).join('');
-}
-
-function recalcAllTermRows(){
-  var rows=document.getElementById('q-term-rows').querySelectorAll('.q-term-row');
-  rows.forEach(function(row){
-    var idx=parseInt(row.id.replace('q-term-row-',''));
-    updateEscRow(idx);
-  });
-  calcQuote();
-}
-
-function getBandIndex(total){
-  if(qCPA==='cpa') return total<=50000?0:1;
-  if(total<=20000) return 0;
-  if(total<=50000) return 1;
-  if(total<=100000) return 2;
-  return 3;
-}
-
-function getFactor(total,esc,term,cpaOverride){
-  var useCPA=cpaOverride!==undefined?cpaOverride:qCPA;
-  var table=useCPA==='cpa'?RATES.cpa[term]:RATES.nonCpa[term];
-  if(!table) return 0;
-  var escIdx=table.esc.indexOf(parseFloat(esc));
-  if(escIdx===-1) return 0;
-  var bandIdx=getBandIndex(total);
-  return table.bands[escIdx][Math.min(bandIdx,table.bands[escIdx].length-1)]||0;
-}
-
-function calcQuote(){
-  var products=qCategory==='comms'?COMMS_PRODUCTS:qCategory==='printers'?PRINTER_PRODUCTS:SECURITY_PRODUCTS;
-  var stockCost=0;
-  products.forEach(function(p){stockCost+=(qQuantities[p.id]||0)*p.price;});
-  if(qCategory==='comms'){
-    var pc=(qQuantities['t46u']||0)+(qQuantities['t43u']||0)+(qQuantities['t31p']||0)+(qQuantities['w73p']||0)+(qQuantities['w73b']||0)+(qQuantities['w80b']||0);
-    if(pc>0){var r=POE_RULES.find(function(r){return pc<=r.max;})||POE_RULES[POE_RULES.length-1];stockCost+=r.price;}
-  }
-  if(qCategory==='security'){
-    var cc=(qQuantities['cam_2mp']||0)+(qQuantities['cam_4mp']||0)+(qQuantities['cam_8mp']||0)+(qQuantities['cam_ptz']||0);
-    if(cc>0){var r=NVR_RULES.find(function(r){return cc<=r.max;})||NVR_RULES[NVR_RULES.length-1];stockCost+=r.price;}
-  }
-  var unitCount=Object.values(qQuantities).reduce(function(a,b){return a+b;},0);
-  var installCost=unitCount*INSTALL_PER_UNIT;
-  var gp=parseFloat(document.getElementById('q-gp')?.value)||0;
-  var totalEx=stockCost+installCost+ADMIN_FEE;
-  var grandTotal=totalEx+gp;
-  var fmt=function(n){return 'R '+n.toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});};
-  var qd=function(id){return document.getElementById(id);};
-  if(qd('qd-stock')) qd('qd-stock').textContent=fmt(stockCost);
-  if(qd('qd-install')) qd('qd-install').textContent=fmt(installCost);
-  if(qd('qd-total')) qd('qd-total').textContent=fmt(totalEx);
-  if(qd('qd-grand-total')) qd('qd-grand-total').textContent=fmt(grandTotal);
-  if(qd('qd-cash')) qd('qd-cash').textContent=fmt(grandTotal);
-  // calc each term row
-  var rows=document.getElementById('q-term-rows')?document.getElementById('q-term-rows').querySelectorAll('.q-term-row'):[];
-  rows.forEach(function(row){
-    var idx=parseInt(row.id.replace('q-term-row-',''));
-    var term=parseInt(document.getElementById('q-term-'+idx)?.value)||0;
-    var esc=document.getElementById('q-esc-'+idx)?.value||'';
-    var resEl=document.getElementById('q-result-'+idx);
-    if(!term||esc===''){if(resEl)resEl.style.display='none';return;}
-    var factor=getFactor(grandTotal,esc,term);
-    var rental=grandTotal*factor;
-    var totalMonthly=rental+99;
-    if(resEl)resEl.style.display='';
-    if(qd('qd-factor-'+idx)) qd('qd-factor-'+idx).textContent=factor.toFixed(5);
-    if(qd('qd-rental-'+idx)) qd('qd-rental-'+idx).textContent=fmt(rental);
-    if(qd('qd-total-row-'+idx)) qd('qd-total-row-'+idx).textContent=fmt(totalMonthly);
-  });
-}
-
-// ── CLIENT DETAILS ──
-var qClientData=null;
-var qPendingClientData=null;
-
-function goToClientDetails(){
-  showStep(6);
-  document.getElementById('q-client-form').style.display='none';
-  document.getElementById('q-client-imported').style.display='none';
-}
-
-function showManualClient(){
-  document.getElementById('q-client-form').style.display='block';
-  document.getElementById('q-client-imported').style.display='none';
-  ['qc-biz','qc-name','qc-phone','qc-email','qc-address'].forEach(function(id){
-    var el=document.getElementById(id); if(el) el.value='';
-  });
-}
-
-function saveClientAndContinue(){
-  var biz=document.getElementById('qc-biz').value.trim();
-  var name=document.getElementById('qc-name').value.trim();
-  var phone=document.getElementById('qc-phone').value.trim();
-  var email=document.getElementById('qc-email').value.trim();
-  if(!biz||!name||!phone||!email){showToast('Please fill in all required fields');return;}
-  qPendingClientData={biz:biz,name:name,phone:phone,email:email,address:document.getElementById('qc-address').value.trim()};
-  // check if should save to directory
-  var existing=D.contacts.find(function(c){return c.biz&&c.biz.toLowerCase()===biz.toLowerCase();});
-  if(existing){
-    document.getElementById('dupMsg').textContent='A contact with the business name "'+biz+'" already exists in your directory. What would you like to do?';
-    openModal('modalDuplicate');
-  } else {
-    if(confirm('Save these details to your Directory?')){
-      D.contacts.unshift({id:Date.now(),date:todayKey(),name:name,biz:biz,cell:phone,email:email,address:qPendingClientData.address,priority:'med',statuses:[]});
-      save(); renderDirectory(); showToast('Contact saved to Directory');
-    }
-    qClientData=qPendingClientData;
-    showStep(7);
-  }
-}
-
-function handleDuplicate(action){
-  closeModal('modalDuplicate');
-  if(action==='replace'){
-    var existing=D.contacts.find(function(c){return c.biz&&c.biz.toLowerCase()===qPendingClientData.biz.toLowerCase();});
-    if(existing){
-      existing.name=qPendingClientData.name; existing.cell=qPendingClientData.phone;
-      existing.email=qPendingClientData.email; existing.address=qPendingClientData.address;
-      save(); showToast('Contact updated in Directory');
-    }
-  } else if(action==='duplicate'){
-    var newC={id:Date.now(),date:todayKey(),name:qPendingClientData.name,biz:qPendingClientData.biz+' (1)',cell:qPendingClientData.phone,email:qPendingClientData.email,address:qPendingClientData.address,priority:'med',statuses:[]};
-    D.contacts.unshift(newC); save(); showToast('Saved as duplicate');
-  }
-  qClientData=qPendingClientData;
-  renderDirectory();
-  showStep(7);
-}
-
-function openClientPicker(){
-  document.getElementById('clientPickerSearch').value='';
-  renderClientPicker();
-  openModal('modalClientPicker');
-}
-
-function renderClientPicker(){
-  var q=document.getElementById('clientPickerSearch').value.toLowerCase().trim();
-  var contacts=[].concat(D.contacts).filter(function(c){
-    return !q||[c.name,c.biz].some(function(f){return (f||'').toLowerCase().includes(q);});
-  }).sort(function(a,b){return (a.biz||a.name).localeCompare(b.biz||b.name);});
-  var el=document.getElementById('clientPickerList');
-  if(!contacts.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No contacts found</div>';return;}
-  var html='';
-  contacts.forEach(function(c){
-    html+='<div class="picker-item" onclick="importClientFromDir('+c.id+')">'
-      +'<div class="picker-avatar">'+esc(initials(c.biz||c.name))+'</div>'
-      +'<div><div class="picker-name">'+esc(c.biz||c.name)+'</div><div class="picker-biz">'+esc(c.biz?c.name:'')+'</div></div>'
-      +'</div>';
-  });
-  el.innerHTML=html;
-}
-
-function importClientFromDir(id){
-  var c=D.contacts.find(function(c){return c.id===id;});
-  if(!c) return;
-  qClientData={biz:c.biz||c.name,name:c.name,phone:c.cell||c.land||'',email:c.email||'',address:c.address||''};
-  closeModal('modalClientPicker');
-  document.getElementById('qi-biz').textContent=qClientData.biz;
-  document.getElementById('qi-name').textContent=qClientData.name;
-  document.getElementById('qi-phone').textContent=qClientData.phone;
-  document.getElementById('qi-email').textContent=qClientData.email;
-  document.getElementById('q-client-form').style.display='none';
-  document.getElementById('q-client-imported').style.display='block';
-}
-
-function updateFinalSummary(){
-  if(!qClientData) return;
-  document.getElementById('q-final-client-name').textContent=qClientData.biz||qClientData.name;
-  var rows=document.getElementById('q-term-rows')?document.getElementById('q-term-rows').querySelectorAll('.q-term-row'):[];
-  var parts=[];
-  rows.forEach(function(row){
-    var idx=parseInt(row.id.replace('q-term-row-',''));
-    var term=document.getElementById('q-term-'+idx)?.value;
-    var esc=document.getElementById('q-esc-'+idx)?.value;
-    if(term&&esc) parts.push(term+' months @ '+(parseFloat(esc)*100)+'% esc');
-  });
-  document.getElementById('q-final-summary').textContent=(parts.length?parts.join(' | '):qCategory||'')+(qCPA==='cpa'?' — CPA':' — Non CPA');
-}
-
-// ── GENERATE QUOTE (PDF) ──
-var qQuotePrintWindow=null;
-
-function generateQuotePDF(){
-  if(!qClientData){showToast('Client details missing');return;}
-  var products=qCategory==='comms'?COMMS_PRODUCTS:qCategory==='printers'?PRINTER_PRODUCTS:SECURITY_PRODUCTS;
-  var fmt=function(n){return 'R '+n.toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});};
-  var stockCost=0;
-  var itemRows='';
-  products.forEach(function(p){
-    var qty=qQuantities[p.id]||0;
-    if(qty>0){
-      stockCost+=qty*p.price;
-      itemRows+='<tr><td>'+esc(p.name)+'</td><td>'+esc(p.sub)+'</td><td>'+qty+'</td><td>'+fmt(p.price)+'</td><td>'+fmt(p.price*qty)+'</td></tr>';
-    }
-  });
-  // auto items
-  var autoRows='';
-  if(qCategory==='comms'){
-    var pc=(qQuantities['t46u']||0)+(qQuantities['t43u']||0)+(qQuantities['t31p']||0)+(qQuantities['w73p']||0)+(qQuantities['w73b']||0)+(qQuantities['w80b']||0);
-    if(pc>0){var r=POE_RULES.find(function(r){return pc<=r.max;})||POE_RULES[POE_RULES.length-1];stockCost+=r.price;autoRows+='<tr><td>'+r.name+'</td><td>Auto-selected</td><td>1</td><td>'+fmt(r.price)+'</td><td>'+fmt(r.price)+'</td></tr>';}
-  }
-  if(qCategory==='security'){
-    var cc=(qQuantities['cam_2mp']||0)+(qQuantities['cam_4mp']||0)+(qQuantities['cam_8mp']||0)+(qQuantities['cam_ptz']||0);
-    if(cc>0){var r=NVR_RULES.find(function(r){return cc<=r.max;})||NVR_RULES[NVR_RULES.length-1];stockCost+=r.price;autoRows+='<tr><td>'+r.name+'</td><td>Auto-selected</td><td>1</td><td>'+fmt(r.price)+'</td><td>'+fmt(r.price)+'</td></tr>';}
-  }
-  var unitCount=Object.values(qQuantities).reduce(function(a,b){return a+b;},0);
-  var installCost=unitCount*INSTALL_PER_UNIT;
-  var gp=parseFloat(document.getElementById('q-gp')?.value)||0;
-  var grandTotal=stockCost+installCost+ADMIN_FEE+gp;
-  // term rows
-  var termHtml='';
-  var rows=document.getElementById('q-term-rows')?document.getElementById('q-term-rows').querySelectorAll('.q-term-row'):[];
-  rows.forEach(function(row){
-    var idx=parseInt(row.id.replace('q-term-row-',''));
-    var term=document.getElementById('q-term-'+idx)?.value;
-    var esc=document.getElementById('q-esc-'+idx)?.value;
-    if(!term||esc==='') return;
-    var factor=getFactor(grandTotal,esc,term);
-    var rental=grandTotal*factor;
-    termHtml+='<tr><td>'+term+' Months</td><td>'+(parseFloat(esc)*100)+'%</td><td>'+factor.toFixed(5)+'</td><td class="highlight">'+fmt(rental)+'</td><td class="highlight">'+fmt(rental+99)+'</td></tr>';
-  });
-  var connP=parseFloat(document.getElementById('q-connectivity-price')?.value)||0;
-  var intP=qInternetYes?(parseFloat(document.getElementById('q-internet-price')?.value)||0):0;
-  var connType=(document.getElementById('q-connectivity')?.value||'').toUpperCase();
-  var win=window.open('','_blank');
-  win.document.write('<!DOCTYPE html><html><head><title>Quote — '+esc(qClientData.biz)+'</title>'
-    +'<style>body{font-family:Arial,sans-serif;padding:30px;color:#222;max-width:800px;margin:0 auto}'
-    +'h1{color:#c4874a;font-size:24px}h2{color:#555;font-size:15px;margin-top:24px;border-bottom:1px solid #ddd;padding-bottom:6px}'
-    +'table{width:100%;border-collapse:collapse;margin:10px 0}th{background:#f5f0eb;text-align:left;padding:8px 10px;font-size:13px}'
-    +'td{padding:8px 10px;border-bottom:1px solid #eee;font-size:13px}.total-row{font-weight:700;background:#fdf8f3}'
-    +'.highlight{color:#c4874a;font-weight:700}.note{font-size:12px;color:#888;margin-top:4px}'
-    +'@media print{button{display:none}}</style></head><body>'
-    +'<h1>Quote — '+esc(qClientData.biz)+'</h1>'
-    +'<p style="color:#888;font-size:12px">Generated: '+new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</p>'
-    +'<h2>Client Details</h2>'
-    +'<table><tr><td>Business</td><td><strong>'+esc(qClientData.biz)+'</strong></td></tr>'
-    +'<tr><td>Contact</td><td>'+esc(qClientData.name)+'</td></tr>'
-    +'<tr><td>Phone</td><td>'+esc(qClientData.phone)+'</td></tr>'
-    +'<tr><td>Email</td><td>'+esc(qClientData.email)+'</td></tr>'
-    +(qClientData.address?'<tr><td>Address</td><td>'+esc(qClientData.address)+'</td></tr>':'')
-    +'</table>'
-    +'<h2>Hardware — '+qCategory.charAt(0).toUpperCase()+qCategory.slice(1)+'</h2>'
-    +'<table><tr><th>Product</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>'
-    +itemRows+autoRows+'</table>'
-    +'<h2>Cost Summary</h2>'
-    +'<table>'
-    +'<tr><td>Stock Cost</td><td>'+fmt(stockCost)+'</td></tr>'
-    +'<tr><td>Install Cost</td><td>'+fmt(installCost)+'</td></tr>'
-    +'<tr><td>Admin Fee</td><td>R 5,000.00</td></tr>'
-    +'<tr><td>GP Load</td><td>'+fmt(gp)+'</td></tr>'
-    +'<tr class="total-row"><td>Total Cost</td><td class="highlight">'+fmt(grandTotal)+'</td></tr>'
-    +(connP>0?'<tr><td>Connectivity ('+connType+')</td><td>'+fmt(connP)+'/month</td></tr>':'')
-    +(intP>0?'<tr><td>Internet</td><td>'+fmt(intP)+'/month</td></tr>':'')
-    +'</table>'
-    +'<h2>Rental Options — '+(qCPA==='cpa'?'CPA':'Non CPA')+'</h2>'
-    +'<table><tr><th>Term</th><th>Escalation</th><th>Factor</th><th>Monthly Rental</th><th>Total Monthly (inc R99)</th></tr>'
-    +termHtml+'</table>'
-    +'<h2>Cash Option</h2>'
-    +'<table><tr class="total-row"><td>Once-off Price</td><td class="highlight">'+fmt(grandTotal)+'</td></tr>'
-    +'<tr><td>Monthly Service Fee</td><td>R 99.00/month</td></tr></table>'
-    +'<p class="note">All pricing excludes VAT. Quote valid for 14 days. All rentals linked to prime.</p>'
-    +'<button onclick="window.print()" style="margin-top:20px;padding:10px 24px;background:#c4874a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">Print / Save as PDF</button>'
-    +'</body></html>');
-  win.document.close();
-  qQuotePrintWindow=win;
-  // ask about email
-  if(qClientData.email){
-    document.getElementById('emailQuoteAddr').textContent=qClientData.email;
-    openModal('modalEmailQuote');
-  } else {
-    openModal('modalSaved');
-  }
-}
-
-function doEmailQuote(){
-  closeModal('modalEmailQuote');
-  var subject=encodeURIComponent('Quote — '+(qClientData?qClientData.biz:''));
-  var body=encodeURIComponent('Please find your quote attached.\n\nKind regards');
-  window.location.href='mailto:'+encodeURIComponent(qClientData.email||'')+'?subject='+subject+'&body='+body;
-  setTimeout(function(){openModal('modalSaved');},1000);
-}
-
-function skipEmailQuote(){
-  closeModal('modalEmailQuote');
-  openModal('modalSaved');
-}
-
-
-// ── TASKS ──
-let currentTaskTab = 'todo';
-let taskReminderTaskId = null;
-let contactPickerTaskId = null;
-
-function switchTaskTab(tab){
-  currentTaskTab = tab;
-  document.querySelectorAll('.task-inner-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('ttab-'+tab).classList.add('active');
-  document.querySelectorAll('.task-pane').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tp-'+tab).classList.add('active');
-  renderTasks();
-}
-
-function addWorkingDaysTask(fromDate, days){
-  const d = new Date(fromDate);
-  let added = 0;
-  while(added < days){
-    d.setDate(d.getDate()+1);
-    const day = d.getDay();
-    if(day !== 0 && day !== 6) added++;
-  }
-  return d;
-}
-
-function quickAddTask(){
-  const val = document.getElementById('taskInput').value.trim();
-  if(!val){ showToast('Enter a task first'); return; }
-  const now = new Date();
-  const task = {
-    id: Date.now(),
-    text: val,
-    done: false,
-    dateAdded: now.toISOString(),
-    dateKey: dateKey(now),
-    dateCompleted: null,
-    reminder: null,
-    linkedContactId: null,
-  };
-  // auto reminder: 3 working days at 8am
-  const autoDate = addWorkingDaysTask(now, 3);
-  autoDate.setHours(8,0,0,0);
-  task.reminder = autoDate.toISOString();
-  task.autoReminder = true;
-  D.tasks.unshift(task);
-  save();
-  scheduleTaskReminder(task);
-  document.getElementById('taskInput').value = '';
-  renderTasks();
-  showToast('Task added');
-}
-
-function completeTask(id){
-  const t = D.tasks.find(t=>t.id===id); if(!t) return;
-  t.done = true;
-  t.dateCompleted = new Date().toISOString();
-  save(); renderTasks();
-}
-
-function uncompleteTask(id){
-  const t = D.tasks.find(t=>t.id===id); if(!t) return;
-  t.done = false;
-  t.dateAdded = new Date().toISOString();
-  t.dateKey = dateKey(new Date());
-  t.dateCompleted = null;
-  // reset auto reminder
-  const autoDate = addWorkingDaysTask(new Date(), 3);
-  autoDate.setHours(8,0,0,0);
-  t.reminder = autoDate.toISOString();
-  t.autoReminder = true;
-  save(); scheduleTaskReminder(t); renderTasks();
-  showToast('Moved back to To Do');
-}
-
-function deleteTask(id){
-  if(!confirm('Delete this task?')) return;
-  D.tasks = D.tasks.filter(t=>t.id!==id);
-  save(); renderTasks();
-}
-
-function renderTasks(){
-  const todo      = D.tasks.filter(t=>!t.done);
-  const completed = D.tasks.filter(t=>t.done);
-  const count     = todo.length;
-  document.getElementById('taskSubCount').textContent = `${count} to do · ${completed.length} completed`;
-
-  // TO DO
-  const todoEl = document.getElementById('todoList');
-  if(!todo.length){
-    todoEl.innerHTML = '<div class="empty-tasks"><div>✅</div>Nothing to do — add a task above</div>';
-  } else {
-    // group by dateKey
-    const groups = {};
-    todo.forEach(t=>{ if(!groups[t.dateKey]) groups[t.dateKey]=[]; groups[t.dateKey].push(t); });
-    let html = '';
-    Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(key=>{
-      const label = key===todayKey()?'Today':new Date(key+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long'});
-      html += `<div class="task-date-heading"><span>${label}</span></div>`;
-      groups[key].forEach(t=>{ html += taskCardHTML(t); });
-    });
-    todoEl.innerHTML = html;
-  }
-
-  // COMPLETED
-  const compEl = document.getElementById('completedList');
-  if(!completed.length){
-    compEl.innerHTML = '<div class="empty-tasks"><div>📋</div>No completed tasks yet</div>';
-  } else {
-    const cGroups = {};
-    completed.forEach(t=>{
-      const k = dateKey(new Date(t.dateCompleted));
-      if(!cGroups[k]) cGroups[k]=[];
-      cGroups[k].push(t);
-    });
-    let html = '';
-    Object.keys(cGroups).sort((a,b)=>b.localeCompare(a)).forEach(key=>{
-      const label = key===todayKey()?'Completed Today':new Date(key+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long'});
-      html += `<div class="task-date-heading"><span>${label}</span></div>`;
-      cGroups[key].forEach(t=>{ html += taskCardHTML(t); });
-    });
-    compEl.innerHTML = html;
-  }
-}
-
-function taskCardHTML(t){
-  const linkedContact = t.linkedContactId ? D.contacts.find(c=>c.id===t.linkedContactId) : null;
-  const reminderFmt = t.reminder ? new Date(t.reminder).toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'}) + ' at ' + new Date(t.reminder).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) : '';
-  const addedFmt = new Date(t.dateAdded).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
-  const completedFmt = t.dateCompleted ? new Date(t.dateCompleted).toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'}) + ' at ' + new Date(t.dateCompleted).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) : '';
-  const bestNum = linkedContact ? cleanNum(linkedContact.cell||linkedContact.land) : '';
-
-  // render bullet points
-  const bulletsHTML = (t.bullets && t.bullets.length)
-    ? `<ul class="task-bullets">${t.bullets.filter(b=>b.trim()).map(b=>`<li>${esc(b.replace(/^[•\-\*]\s*/,''))}</li>`).join('')}</ul>`
-    : '';
-
-  return `<div class="task-card">
-    <div class="task-card-main">
-      <button class="task-checkbox${t.done?' done':''}" onclick="${t.done?`uncompleteTask(${t.id})`:`completeTask(${t.id})`}"></button>
-      <div class="task-text-wrap">
-        <div class="task-text${t.done?' done':''}">${esc(t.text)}</div>
-        <div class="task-meta">${t.done ? `Completed ${completedFmt}` : `Added ${addedFmt}`}</div>
-      </div>
-      ${!t.done?`<div class="task-actions">
-        <button class="task-ac-btn task-edit-btn" onclick="openTaskEdit(${t.id})" title="Edit">✏️</button>
-        <button class="task-ac-btn task-remind-btn" onclick="openTaskReminder(${t.id})" title="Reminder">🔔</button>
-        <button class="task-ac-btn task-contact-btn" onclick="openContactPicker(${t.id})" title="Link contact">👤</button>
-        <button class="task-ac-btn task-del-btn" onclick="deleteTask(${t.id})" title="Delete">×</button>
-      </div>`:`<div class="task-actions"><button class="task-ac-btn task-del-btn" onclick="deleteTask(${t.id})" title="Delete">×</button></div>`}
-    </div>
-    ${bulletsHTML}
-    ${t.reminder && !t.done ? `<div class="task-reminder-set">🔔 ${t.autoReminder?'Auto reminder: ':'Reminder: '}${reminderFmt}</div>` : ''}
-    ${linkedContact ? `<div class="task-linked-contact">👤 ${esc(linkedContact.name)}${linkedContact.biz?' · '+esc(linkedContact.biz):''}
-      <div class="task-linked-ac">
-        ${bestNum?`<button class="task-linked-ac-btn tlab-call" onclick="showCallChooser('${esc(bestNum)}','${esc(linkedContact.cell||linkedContact.land)}',event)">📞 Call</button>`:''}
-        ${linkedContact.cell?`<button class="task-linked-ac-btn tlab-wa" onclick="openWhatsApp('${esc(cleanNum(linkedContact.cell))}',event)">${WA_SVG} WhatsApp</button>`:''}
-        ${linkedContact.email?`<button class="task-linked-ac-btn tlab-email" onclick="openEmail('${esc(linkedContact.email)}',event)">${EMAIL_SVG} Email</button>`:''}
-      </div>
-    </div>` : ''}
-  </div>`;
-}
-
-// ── TASK EDIT ──
-let editingTaskId = null;
-
-function openTaskEdit(id){
-  editingTaskId = id;
-  const t = D.tasks.find(t=>t.id===id); if(!t) return;
-  document.getElementById('teTitle').value = t.text;
-  document.getElementById('teBullets').value = (t.bullets||[]).join('\n');
-  openModal('modalTaskEdit');
-}
-
-function saveTaskEdit(){
-  const t = D.tasks.find(t=>t.id===editingTaskId); if(!t) return;
-  const title = document.getElementById('teTitle').value.trim();
-  if(!title){ showToast('Task needs a title'); return; }
-  t.text = title;
-  const bulletsRaw = document.getElementById('teBullets').value;
-  t.bullets = bulletsRaw.split('\n').map(l=>l.replace(/^[•\-\*]\s*/,'')).filter(l=>l.trim());
-  save();
-  closeModal('modalTaskEdit');
-  renderTasks();
-  showToast('Task updated ✓');
-}
-
-// ── TASK REMINDERS ──
-function openTaskReminder(id){
-  taskReminderTaskId = id;
-  const t = D.tasks.find(t=>t.id===id); if(!t) return;
-  document.getElementById('taskReminderLabel').textContent = t.text.length > 50 ? t.text.substring(0,50)+'…' : t.text;
-  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
-  document.getElementById('trDate').value = t.reminder ? dateKey(new Date(t.reminder)) : dateKey(tomorrow);
-  document.getElementById('trTime').value = t.reminder ? new Date(t.reminder).toTimeString().substring(0,5) : '08:00';
-  openModal('modalTaskReminder');
-}
-
-function saveTaskReminder(){
-  const date = document.getElementById('trDate').value;
-  const time = document.getElementById('trTime').value;
-  if(!date||!time){ showToast('Set a date and time'); return; }
-  const t = D.tasks.find(t=>t.id===taskReminderTaskId); if(!t) return;
-  t.reminder = `${date}T${time}`;
-  t.autoReminder = false;
-  save(); scheduleTaskReminder(t);
-  closeModal('modalTaskReminder');
-  renderTasks();
-  showToast('Reminder set 🔔');
-}
-
-function scheduleTaskReminder(task){
-  if(!task.reminder) return;
-  const ms = new Date(task.reminder).getTime() - Date.now();
-  if(ms <= 0) return;
-  if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
-  setTimeout(()=>{
-    if(task.done) return; // already done, skip
-    const msg = task.text.length > 60 ? task.text.substring(0,60)+'…' : task.text;
-    if('Notification' in window && Notification.permission==='granted'){
-      new Notification('Compass Task 🔔', { body: msg });
-    } else {
-      showToast('Task reminder: '+msg);
-    }
-  }, ms);
-}
-
-function initTaskReminders(){
-  if(!D.tasks) return;
-  D.tasks.filter(t=>!t.done && t.reminder).forEach(scheduleTaskReminder);
-}
-
-// ── CONTACT PICKER ──
-function openContactPicker(taskId){
-  contactPickerTaskId = taskId;
-  document.getElementById('pickerSearch').value = '';
-  renderPicker();
-  openModal('modalContactPicker');
-}
-
-function renderPicker(){
-  const q = document.getElementById('pickerSearch').value.toLowerCase().trim();
-  const contacts = [...D.contacts]
-    .filter(c => !q || [c.name,c.biz].some(f=>(f||'').toLowerCase().includes(q)))
-    .sort((a,b)=>(a.biz||a.name).localeCompare(b.biz||b.name));
-  const el = document.getElementById('pickerList');
-  if(!contacts.length){ el.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No contacts found</div>'; return; }
-  el.innerHTML = contacts.map(c=>`
-    <div class="picker-item" onclick="linkContactToTask(${c.id})">
-      <div class="picker-avatar">${esc(initials(c.biz||c.name))}</div>
-      <div><div class="picker-name">${esc(c.biz||c.name)}</div><div class="picker-biz">${esc(c.biz?c.name:'')}</div></div>
-    </div>`).join('');
-}
-
-function linkContactToTask(contactId){
-  const t = D.tasks.find(t=>t.id===contactPickerTaskId); if(!t) return;
-  t.linkedContactId = contactId;
-  save(); closeModal('modalContactPicker'); renderTasks();
-  showToast('Contact linked ✓');
-}
-
-// ── BOOT ──
-document.addEventListener('DOMContentLoaded', function(){
-  // All modal backdrop close listeners
-  document.querySelectorAll('.modal-overlay').forEach(function(o){
-    o.addEventListener('click', function(e){ if(e.target===o) closeModal(o.id); });
-  });
-
-  // Chooser backdrop close
-  const chooser = document.getElementById('chooserOverlay');
-  if(chooser) chooser.addEventListener('click', function(e){ if(e.target===chooser) closeChooser(); });
-
-  // Connectivity price row toggle
-  const conn = document.getElementById('q-connectivity');
-  if(conn) conn.addEventListener('change', function(){
-    const show = this.value !== '';
-    const row = document.getElementById('q-connectivity-price-row');
-    if(row) row.style.display = show ? '' : 'none';
-    calcQuote();
-  });
-
-  init();
-  initReminders();
-  initTaskReminders();
-});
-</script>
-</body>
-</html>
+          ${c.colleague?'<div class="contact-field"><span class="field-icon">🤝</sp
